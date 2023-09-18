@@ -1,0 +1,291 @@
+@keyframes float {
+    0% {
+        transform: translateY(-30px);
+    }
+    50% {
+        transform: translateY(0px);
+    }
+    100% {
+        transform: translateY(-30px) ;
+    }
+}
+
+@keyframes floatShadow {
+    0% {
+        width: 70px;
+        background-color: rgb(190, 190, 190);
+    }
+    50% {
+        width: 120px;
+        background-color: rgb(135, 135, 135);
+    }
+    100% {
+        width: 70px;
+        background-color: rgb(190, 190, 190);
+    }
+}
+
+@keyframes lightning {
+    0% {
+        left: 30px;
+        opacity: 0;
+    }
+    94% {
+        left: 30px;
+        opacity: 1;
+    }
+    96%{
+        left: 100px;
+        transform: rotate(10deg);
+        opacity: 1;
+    }
+    98%{
+        left: 45px;
+        transform: rotate(-10deg);
+        opacity: 1;
+    }
+    100%{
+        left: 65px;
+        opacity: 1;
+    }
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%);
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(40, 40, 40);
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.searchInput, .searchButton, .results, .nextDays, .days {
+    background-color: rgba(255, 255, 255, 0.4);
+    border: none;
+    border-radius: 5px;
+}
+
+.searchInput, .searchButton {
+    height: 30px;
+    font-size: 18px;
+}
+.searchInput {
+    width: 250px;
+    outline: 0;
+    padding-left: 10px;
+}
+
+.searchInput::-webkit-search-cancel-button {
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    background-color: rgba(255, 0, 0, 0.555);
+    border-radius: 50%;
+}
+
+.searchInput::placeholder {
+    text-align: center;
+}
+
+.searchInput:hover {
+    background-color:#e9f7ff ;
+}
+
+.searchButton {
+    width: 80px;
+}
+
+.searchButton:hover {
+    background-color:#e9f7ff ;
+}
+
+.results {
+    width: 700px;
+    height: 300px;
+    padding: 25px;
+    box-sizing: border-box;
+}
+
+.loading {
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.cloud, .cloudBef {
+    position: relative;
+    width: 180px;
+    height: 50px;
+    border-radius: 100px;
+    background-color: rgb(179, 179, 179);
+    animation: float 5s ease-in-out infinite;
+    transition: all ease 0.5s;
+}
+
+.cloud::before, .cloudError::before {
+    content: "";
+    position: absolute;
+    top:-25px;
+    left: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: rgb(179, 179, 179);
+    box-shadow: 60px 0 0 20px rgb(179, 179, 179);
+    transition: all ease 0.5s;
+}
+
+.cloudError { /*classe fora do HTML*/
+    background-color: #464646;
+}
+
+.cloudError::before { /*classe fora do HTML*/
+    background-color: #464646;
+    box-shadow: 60px 0 0 20px #464646;
+}
+
+.lightning img {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    width: 30px;
+    height: 60px;
+    opacity: 0;
+    animation: steps(1, end) 2.5s infinite;
+    animation-name: '';
+}
+
+.shadow {
+    height: 10px;
+    border-radius: 50%;
+    animation: floatShadow 5s ease-in-out infinite;
+}
+
+.warning {
+    position: absolute;
+    bottom: 45px;
+}
+
+.searchResults {
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.searchResults div h2 {
+    margin: 0px;
+}
+
+.lightColor {
+    color: rgb(70, 70, 70);
+}
+
+.locationTemp {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.tempDay {
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+    gap: 5px;
+}
+
+.clime {
+    font-size: 20px;
+}
+
+.infoDay {
+    display: flex;
+    justify-content: space-between;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.wind {
+    display: flex;
+    gap: 5px;
+}
+
+.windDeg {
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+    border-radius: 50px;
+    padding-left: 10px;
+    padding-top: 10px;
+    box-sizing: border-box;
+}
+
+.windPointer {
+    width: 10px;
+    height: 1px;
+    background-color: black;
+    transform-origin: left;
+}
+
+.nextDaysTitle {
+    width: 100%;
+    display: none;
+    align-items: center;
+    gap: 20px;
+}
+
+.nextDaysTitle hr {
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 1px;
+}
+
+
+.nextDays {
+    width: 40%;
+    padding: 5px 15px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: rgb(70, 70, 70);
+}
+
+.weatherNextDays {
+    width: 700px;
+    display: none;
+    justify-content: space-between;
+}
+
+.days {
+    width: 150px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.minMaxNext {
+    display: flex;
+    flex-direction: column;
+}

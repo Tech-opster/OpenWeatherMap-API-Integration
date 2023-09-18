@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Now</title>
+    <link rel="icon" type="image/x-icon" href="Mídia/weather-icon.webp">
+    <link rel="stylesheet" href="Clima.css">
+</head>
+
+<body>
+    <main class="container">
+        <form class="search">
+            <input type="search" class="searchInput" placeholder="Cidade">
+            <button class="searchButton">Buscar</button>
+        </form>
+        
+        <div class="results">
+            <div class="loading">
+                <div class="cloud">
+                    <div class="lightning">
+                        <img src="Mídia/lightning.png">
+                    </div>
+                </div>
+                
+                <div class="shadow"></div>
+                
+                <span class="warning"></span>
+            </div>
+
+            <div class="searchResults">
+                <div>
+                    <h2 class="city">--</h2>
+                    <span class="date lightColor">--</span>
+                </div>
+    
+                <div class="locationTemp">
+                    <img src="https://openweathermap.org/img/wn/10d@2x.png" class="icon">
+                    <h2 class="temp">--</h2>
+    
+                    <div class="tempDay">
+                        <div class="minMax">
+                            <strong>--</strong>
+                             / 
+                            <span class="lightColor">--</span>
+                        </div>
+                        
+                        <div class="feels">
+                            <span class="lightColor">Sensação térmica de</span>
+                            <strong>--</strong>
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="clime">
+                    Parcialmente nublado
+                </div>
+    
+                <div class="infoDay">
+                    <div class="info">
+                        <span class="spanTitle lightColor">Nascer do sol</span>
+                        <span class="spanInfo  sunrise">--</span>
+                    </div>
+                    
+                    <div class="info">
+                        <span class="spanTitle lightColor">Por do sol</span>
+                        <span class="spanInfo  sunset">--</span>
+                    </div>
+
+                    <div class="info">
+                        <span class="spanTitle lightColor">Vento</span>
+                        <div class="wind">
+                            <span class="spanInfo windSpeed">--</span>
+                            <div class="windDeg">
+                                <div class="windPointer"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info">
+                        <span class="spanTitle lightColor">Umidade</span>
+                        <span class="spanInfo humidity">--</span>
+                    </div>
+    
+                    <div class="info">
+                        <span class="spanTitle lightColor">Pressão</span>
+                        <span class="spanInfo pressure">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nextDaysTitle">
+            <hr>
+            <div class="nextDays">Próximos dias</div>
+            <hr>
+        </div>
+        
+        <div class="weatherNextDays">
+            <div class="days">
+                <span class="lightColor">Dia, número</span>
+                
+                <span>☀️</span>
+                
+                <div class="minMaxNext">
+                    <span><strong>0ºc</strong></span>
+                    <span class="lightColor">0ºc</span>
+                </div>
+
+                <span>Céu limpo</span>
+            </div>
+            
+            <div class="days">
+                <span class="lightColor">Dia, número</span>
+                
+                <span>☀️</span>
+                
+                <div class="minMaxNext">
+                    <span><strong>0ºc</strong></span>
+                    <span class="lightColor">0ºc</span>
+                </div>
+
+                <span>Céu limpo</span>
+            </div>
+            
+            <div class="days">
+                <span class="lightColor">Dia, número</span>
+                
+                <span>☀️</span>
+                
+                <div class="minMaxNext">
+                    <span><strong>0ºc</strong></span>
+                    <span class="lightColor">0ºc</span>
+                </div>
+
+                <span>Céu limpo</span>
+            </div>
+            
+            <div class="days">
+                <span class="lightColor">Dia, número</span>
+                
+                <span>☀️</span>
+                
+                <div class="minMaxNext">
+                    <span><strong>0ºc</strong></span>
+                    <span class="lightColor">0ºc</span>
+                </div>
+
+                <span>Céu limpo</span>
+            </div>
+        </div>
+    </main>
+    
+    <script src="Clima.js"></script>
+</body>
+</html>
