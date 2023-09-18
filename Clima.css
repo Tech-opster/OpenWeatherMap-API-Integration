@@ -220,7 +220,10 @@ body {
 .info {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+}
+
+.spanInfo {
+    line-height: 25px;
 }
 
 .wind {

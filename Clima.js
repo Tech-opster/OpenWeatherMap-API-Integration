@@ -6,15 +6,21 @@ document.querySelector('.search').addEventListener('submit', async (event) => {
     if(input !== '') {
         showWarning('Carregando...');
 
-        let url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURI(input)},${encodeURI(input)}&appid=90e79c334be66ba7b94564b6411acdef&units=metric&lang=pt_br`
+        let url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURI(input)}&appid=90e79c334be66ba7b94564b6411acdef&units=metric&lang=pt_br`
+        let urlForecast = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURI(input)}&appid=90e79c334be66ba7b94564b6411acdef&units=metric&lang=pt_br`;
 
         let results = await fetch(url);
         let json = await results.json();
+        
+        let resultsForecast = await fetch(urlForecast);
+        let jsonForecast = await resultsForecast.json();
+        console.log(jsonForecast);
 
         if(json.cod === 200) {
             showInfo({
                 name: json.name,
                 country: json.sys.country,
+                dt: json.dt,
                 timezone: json.timezone,
                 todayIcon: json.weather[0].icon,
                 todayTemp: json.main.temp,
@@ -34,7 +40,11 @@ document.querySelector('.search').addEventListener('submit', async (event) => {
             document.querySelector('.cloud').classList.add('cloudError');
             document.querySelector('.lightning img').style.animationName = 'lightning';
             showWarning('Ops, não foi possível localizar a cidade.');
-        } 
+        }
+        
+        if(jsonForecast.cod == 200) {
+            showInfoNextDays(jsonForecast);
+        }
     }
 });
 
@@ -73,6 +83,36 @@ function showInfo(json) {
     }, 1)
     
     showNextDays();
+};
+
+function showInfoNextDays(jsonForecast) {
+    const listForecast = jsonForecast.list;
+    let dtListForecast = [];
+    
+    for(i = 0; i < listForecast.length; i++) {
+        dtListForecast.push(listForecast[i]);
+    }
+
+    function groupForecastsByDay(dtListForecast) {
+        const forecastsByDay = {};
+      
+        for (const forecast of dtListForecast) {
+          const date = new Date(forecast.dt * 1000);
+          const day = date.toISOString().split('T')[0];
+      
+          if (!forecastsByDay[day]) {
+            forecastsByDay[day] = [];
+          }
+      
+          forecastsByDay[day].push(forecast);
+        }
+      
+        return forecastsByDay;
+      }
+      
+      const forecastsByDay = groupForecastsByDay(dtListForecast);
+      
+      console.log(forecastsByDay);    
 };
 
 function showNextDays () {
