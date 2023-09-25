@@ -7,14 +7,56 @@ document.querySelector('.search').addEventListener('submit', async (event) => {
         showWarning('Carregando...');
 
         let url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURI(input)}&appid=90e79c334be66ba7b94564b6411acdef&units=metric&lang=pt_br`
-        let urlForecast = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURI(input)}&appid=90e79c334be66ba7b94564b6411acdef&units=metric&lang=pt_br`;
 
         let results = await fetch(url);
         let json = await results.json();
-        
-        let resultsForecast = await fetch(urlForecast);
-        let jsonForecast = await resultsForecast.json();
-        console.log(jsonForecast);
+
+        fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${encodeURI(input)}&appid=90e79c334be66ba7b94564b6411acdef&units=metric&lang=pt_br`)
+            .then(response => response.json())
+            .then(data => {
+                const dtList = data.list;
+                let dtDate = [];
+
+                for (i = 0; i < dtList.length; i++) {
+                    dtDate.push(dtList[i]);
+                }
+
+                function groupForecastsByDay(dtDate) {
+                    const forecastsByDay = {};
+                  
+                    for (const forecast of dtDate) {
+                      const date = new Date(forecast.dt * 1000);
+                      const day = date.toISOString().split('T')[0];
+                  
+                      if (!forecastsByDay[day]) {
+                        forecastsByDay[day] = [];
+                      }
+                  
+                      forecastsByDay[day].push(forecast);
+                    }
+                  
+                    return forecastsByDay;
+                  }
+                  
+                  const forecastsByDay = groupForecastsByDay(dtDate);
+                  console.log(forecastsByDay)
+
+                for (i=0; i < 4; i++) {
+                    const date = new Date(data.list[i].dt * 1000);
+                    optionsDate = {
+                        weekday: 'short', 
+                        day: 'numeric'
+                    }
+                    const dateFormat = new Intl.DateTimeFormat('pt-br', optionsDate).format(date);
+
+                    document.querySelector(".day"+(i+1)+"date").innerHTML = dateFormat;
+                    document.querySelector(".day"+(i+1)+"img").setAttribute('src', `https://openweathermap.org/img/wn/${data.list[i].weather[0].icon}@2x.png`);
+                    document.querySelector(".day"+(i+1)+"max").innerHTML = `${Number(data.list[i].main.temp_max).toFixed(1)}º`;
+                    document.querySelector(".day"+(i+1)+"min").innerHTML = `${Number(data.list[i].main.temp_min).toFixed(1)}º`;
+                    document.querySelector(".day"+(i+1)+"desc").innerHTML = `${data.list[i].weather[0].description}`;
+                    console.log(data)
+                }
+            }).catch(err => console.log("Ops, algo deu errado"));
 
         if(json.cod === 200) {
             showInfo({
@@ -41,18 +83,25 @@ document.querySelector('.search').addEventListener('submit', async (event) => {
             document.querySelector('.lightning img').style.animationName = 'lightning';
             showWarning('Ops, não foi possível localizar a cidade.');
         }
-        
-        if(jsonForecast.cod == 200) {
-            showInfoNextDays(jsonForecast);
-        }
     }
 });
 
 function showInfo(json) {
     showWarning('');
 
+    let date = new Date(json.dt * 1000);
+    option = {
+        weekday: 'short', 
+        month: 'short', 
+        day: 'numeric',
+        hour: 'numeric', 
+        minute: 'numeric' 
+    }
+    
+    const dateFormat = new Intl.DateTimeFormat('pt-br', option).format(date);
+
     document.querySelector('.city').innerHTML = `${json.name}, ${json.country}`;
-    document.querySelector('.date').innerHTML = `${json.timezone}`;
+    document.querySelector('.date').innerHTML = `${dateFormat}`;
     document.querySelector('.icon').setAttribute('src', `https://openweathermap.org/img/wn/${json.todayIcon}@2x.png`);
     document.querySelector('.temp').innerHTML = `${json.todayTemp.toFixed(1)}ºC`;
     document.querySelector('.minMax strong').innerHTML = `${json.todayMaxTemp.toFixed(1)}º`;
@@ -83,36 +132,6 @@ function showInfo(json) {
     }, 1)
     
     showNextDays();
-};
-
-function showInfoNextDays(jsonForecast) {
-    const listForecast = jsonForecast.list;
-    let dtListForecast = [];
-    
-    for(i = 0; i < listForecast.length; i++) {
-        dtListForecast.push(listForecast[i]);
-    }
-
-    function groupForecastsByDay(dtListForecast) {
-        const forecastsByDay = {};
-      
-        for (const forecast of dtListForecast) {
-          const date = new Date(forecast.dt * 1000);
-          const day = date.toISOString().split('T')[0];
-      
-          if (!forecastsByDay[day]) {
-            forecastsByDay[day] = [];
-          }
-      
-          forecastsByDay[day].push(forecast);
-        }
-      
-        return forecastsByDay;
-      }
-      
-      const forecastsByDay = groupForecastsByDay(dtListForecast);
-      
-      console.log(forecastsByDay);    
 };
 
 function showNextDays () {
