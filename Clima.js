@@ -2,80 +2,93 @@ document.querySelector('.search').addEventListener('submit', async (event) => {
     event.preventDefault();
 
     let input = document.querySelector('.searchInput').value;
+    let currentData;
 
     if(input !== '') {
         showWarning('Carregando...');
 
-        let url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURI(input)}&appid=90e79c334be66ba7b94564b6411acdef&units=metric&lang=pt_br`
+        const currentURL = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURI(input)}&appid=90e79c334be66ba7b94564b6411acdef&units=metric&lang=pt_br`;
+        const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURI(input)}&appid=90e79c334be66ba7b94564b6411acdef&units=metric&lang=pt_br`;
 
-        let results = await fetch(url);
-        let json = await results.json();
+        try {
+            const [currentURLResponse, forecastURLResponse] = await Promise.all([
+                fetch(currentURL),
+                fetch(forecastURL)
+            ]);
 
-        fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${encodeURI(input)}&appid=90e79c334be66ba7b94564b6411acdef&units=metric&lang=pt_br`)
-            .then(response => response.json())
-            .then(data => {
-                const dtList = data.list;
-                let dtDate = [];
+            currentData = await currentURLResponse.json();
+            const forecastData = await forecastURLResponse.json();
 
-                for (i = 0; i < dtList.length; i++) {
-                    dtDate.push(dtList[i]);
-                }
+            console.log(currentData);
+            console.log(forecastData);
 
-                function groupForecastsByDay(dtDate) {
-                    const forecastsByDay = {};
-                  
-                    for (const forecast of dtDate) {
-                      const date = new Date(forecast.dt * 1000);
-                      const day = date.toISOString().split('T')[0];
-                  
-                      if (!forecastsByDay[day]) {
+            const dtList = forecastData.list;
+            let dtDate = [];
+
+            for (i = 0; i < dtList.length; i++) {
+                dtDate.push(dtList[i]);
+            }
+
+            function groupForecastsByDay(dtDate) {
+                const forecastsByDay = {};
+                
+                for (const forecast of dtDate) {
+                    const date = new Date(forecast.dt * 1000);
+                    const day = date.toISOString().split('T')[0];
+                
+                    if (!forecastsByDay[day]) {
                         forecastsByDay[day] = [];
-                      }
-                  
-                      forecastsByDay[day].push(forecast);
                     }
-                  
-                    return forecastsByDay;
-                  }
-                  
-                  const forecastsByDay = groupForecastsByDay(dtDate);
-                  console.log(forecastsByDay)
-
-                for (i=0; i < 4; i++) {
-                    const date = new Date(data.list[i].dt * 1000);
-                    optionsDate = {
-                        weekday: 'short', 
-                        day: 'numeric'
-                    }
-                    const dateFormat = new Intl.DateTimeFormat('pt-br', optionsDate).format(date);
-
-                    document.querySelector(".day"+(i+1)+"date").innerHTML = dateFormat;
-                    document.querySelector(".day"+(i+1)+"img").setAttribute('src', `https://openweathermap.org/img/wn/${data.list[i].weather[0].icon}@2x.png`);
-                    document.querySelector(".day"+(i+1)+"max").innerHTML = `${Number(data.list[i].main.temp_max).toFixed(1)}º`;
-                    document.querySelector(".day"+(i+1)+"min").innerHTML = `${Number(data.list[i].main.temp_min).toFixed(1)}º`;
-                    document.querySelector(".day"+(i+1)+"desc").innerHTML = `${data.list[i].weather[0].description}`;
-                    console.log(data)
+                
+                    forecastsByDay[day].push(forecast);
                 }
-            }).catch(err => console.log("Ops, algo deu errado"));
+                
+                return forecastsByDay;
+                }
+                
+            const forecastsByDay = groupForecastsByDay(dtDate);
+            const indexDays = Object.values(forecastsByDay);
 
-        if(json.cod === 200) {
+            console.log(indexDays)
+
+            for (i = 1; i < 5; i++) {
+                const date = new Date(indexDays[i][1].dt * 1000);
+                
+                const weekday = new Intl.DateTimeFormat('pt-br', {weekday: 'short'}).format(date);
+                const day = new Intl.DateTimeFormat('pt-br', {day: 'numeric'}).format(date);
+                
+                const dateFormat = `${weekday} ${day}`;
+
+                document.querySelector(".day"+(i)+"date").innerHTML = dateFormat;
+                document.querySelector(".day"+(i)+"img").setAttribute('src', `https://openweathermap.org/img/wn/${indexDays[i][0].weather[0].icon}@2x.png`);
+                document.querySelector(".day"+(i)+"max").innerHTML = `${Number(indexDays[i][0].main.temp_max).toFixed(1)}º`;
+                document.querySelector(".day"+(i)+"min").innerHTML = `${Number(indexDays[i][0].main.temp_min).toFixed(1)}º`;
+                document.querySelector(".day"+(i)+"desc").innerHTML = `${indexDays[i][0].weather[0].description}`;
+                
+                console.log(indexDays[i])
+            }
+        } catch(error) {
+            console.error("Ops, algo deu errado:", error);
+        }
+
+        if(currentData.cod === 200) {
             showInfo({
-                name: json.name,
-                country: json.sys.country,
-                dt: json.dt,
-                timezone: json.timezone,
-                todayIcon: json.weather[0].icon,
-                todayTemp: json.main.temp,
-                todayMaxTemp: json.main.temp_max,
-                todayMinTemp: json.main.temp_min,
-                todayFeels: json.main.feels_like,
-                todayClime: json.weather[0].description,
-                sunrise: json.sys.sunrise,
-                sunset: json.sys.sunset,
-                windSpeed: json.wind.speed,
-                windDeg: json.wind.deg,
-                humidity: json.main.humidity,
-                pressure: json.main.pressure
+                name: currentData.name,
+                country: currentData.sys.country,
+                dt: currentData.dt,
+                timezone: currentData.timezone,
+                todayIcon: currentData.weather[0].icon,
+                todayTemp: currentData.main.temp,
+                todayMaxTemp: currentData.main.temp_max,
+                todayMinTemp: currentData.main.temp_min,
+                todayFeels: currentData.main.feels_like,
+                todayClime: currentData.weather[0].description,
+                sunrise: currentData.sys.sunrise,
+                sunset: currentData.sys.sunset,
+                windSpeed: currentData.wind.speed,
+                windDeg: currentData.wind.deg,
+                humidity: currentData.main.humidity,
+                pressure: currentData.main.pressure
             });
         } else {
             clearInfo();
@@ -86,34 +99,44 @@ document.querySelector('.search').addEventListener('submit', async (event) => {
     }
 });
 
-function showInfo(json) {
+function showInfo(currentData) {
     showWarning('');
 
-    let date = new Date(json.dt * 1000);
-    option = {
-        weekday: 'short', 
-        month: 'short', 
-        day: 'numeric',
-        hour: 'numeric', 
-        minute: 'numeric' 
-    }
+    let date = new Date(currentData.dt * 1000);
     
-    const dateFormat = new Intl.DateTimeFormat('pt-br', option).format(date);
+    let dateSunrise = new Date(currentData.sunrise * 1000);
+    let dateSunset = new Date(currentData.sunset * 1000);
 
-    document.querySelector('.city').innerHTML = `${json.name}, ${json.country}`;
+    clock = {
+        timezone: currentData.timezone,
+        hour: 'numeric',
+        minute: 'numeric'
+    };
+    
+    const weekday = new Intl.DateTimeFormat('pt-br', {weekday: 'short'}).format(date);
+    const day = new Intl.DateTimeFormat('pt-br', {day: 'numeric'}).format(date);
+    const month = new Intl.DateTimeFormat('pt-br', {month: 'short'}).format(date);
+    const hour = new Intl.DateTimeFormat('pt-br', clock).format(date);
+    
+    const dateFormat = `${weekday} ${day} ${month} ${hour}`;
+
+    const hourSunrise = new Intl.DateTimeFormat('pt-br', clock).format(dateSunrise);
+    const hourSunset = new Intl.DateTimeFormat('pt-br', clock).format(dateSunset);
+
+    document.querySelector('.city').innerHTML = `${currentData.name}, ${currentData.country}`;
     document.querySelector('.date').innerHTML = `${dateFormat}`;
-    document.querySelector('.icon').setAttribute('src', `https://openweathermap.org/img/wn/${json.todayIcon}@2x.png`);
-    document.querySelector('.temp').innerHTML = `${json.todayTemp.toFixed(1)}ºC`;
-    document.querySelector('.minMax strong').innerHTML = `${json.todayMaxTemp.toFixed(1)}º`;
-    document.querySelector('.minMax span').innerHTML = `${json.todayMinTemp.toFixed(1)}º`;
-    document.querySelector('.feels strong').innerHTML = `${json.todayFeels.toFixed(1)}º`;
-    document.querySelector('.clime').innerHTML = `${json.todayClime}`;
-    document.querySelector('.sunrise').innerHTML = `${json.sunrise}`;
-    document.querySelector('.sunset').innerHTML = `${json.sunset}`;
-    document.querySelector('.windSpeed').innerHTML = `${json.windSpeed} Km/h`;
-    document.querySelector('.windPointer').style.transform = `rotate(${json.windDeg - 90}deg)`;
-    document.querySelector('.humidity').innerHTML = `${json.humidity}%`;
-    document.querySelector('.pressure').innerHTML = `${json.pressure} mb`;
+    document.querySelector('.icon').setAttribute('src', `https://openweathermap.org/img/wn/${currentData.todayIcon}@2x.png`);
+    document.querySelector('.temp').innerHTML = `${currentData.todayTemp.toFixed(1)}ºC`;
+    document.querySelector('.minMax strong').innerHTML = `${currentData.todayMaxTemp.toFixed(1)}º`;
+    document.querySelector('.minMax span').innerHTML = `${currentData.todayMinTemp.toFixed(1)}º`;
+    document.querySelector('.feels strong').innerHTML = `${currentData.todayFeels.toFixed(1)}º`;
+    document.querySelector('.clime').innerHTML = `${currentData.todayClime}`;
+    document.querySelector('.sunrise').innerHTML = `${hourSunrise}`;
+    document.querySelector('.sunset').innerHTML = `${hourSunset}`;
+    document.querySelector('.windSpeed').innerHTML = `${currentData.windSpeed} Km/h`;
+    document.querySelector('.windPointer').style.transform = `rotate(${currentData.windDeg - 90}deg)`;
+    document.querySelector('.humidity').innerHTML = `${currentData.humidity}%`;
+    document.querySelector('.pressure').innerHTML = `${currentData.pressure} mb`;
     
     document.querySelector('.loading').style.display = 'none';
     document.querySelector('.container').style.opacity = '0';
