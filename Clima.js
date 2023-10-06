@@ -19,9 +19,6 @@ document.querySelector('.search').addEventListener('submit', async (event) => {
             currentData = await currentURLResponse.json();
             const forecastData = await forecastURLResponse.json();
 
-            console.log(currentData);
-            console.log(forecastData);
-
             const dtList = forecastData.list;
             let dtDate = [];
 
@@ -48,7 +45,6 @@ document.querySelector('.search').addEventListener('submit', async (event) => {
                 
             const forecastsByDay = groupForecastsByDay(dtDate);
             const indexDays = Object.values(forecastsByDay);
-
             console.log(indexDays)
 
             for (i = 1; i < 5; i++) {
@@ -59,13 +55,11 @@ document.querySelector('.search').addEventListener('submit', async (event) => {
                 
                 const dateFormat = `${weekday} ${day}`;
 
-                document.querySelector(".day"+(i)+"date").innerHTML = dateFormat;
-                document.querySelector(".day"+(i)+"img").setAttribute('src', `https://openweathermap.org/img/wn/${indexDays[i][0].weather[0].icon}@2x.png`);
+                document.querySelector(".day"+(i)+"date").innerHTML = dateFormat.charAt(0).toUpperCase() + dateFormat.slice(1);
+                document.querySelector(".day"+(i)+"img").setAttribute('src', `https://openweathermap.org/img/wn/${indexDays[i][0].weather[0].icon.slice(0, 2)}d@2x.png`);
                 document.querySelector(".day"+(i)+"max").innerHTML = `${Number(indexDays[i][0].main.temp_max).toFixed(1)}º`;
                 document.querySelector(".day"+(i)+"min").innerHTML = `${Number(indexDays[i][0].main.temp_min).toFixed(1)}º`;
-                document.querySelector(".day"+(i)+"desc").innerHTML = `${indexDays[i][0].weather[0].description}`;
-                
-                console.log(indexDays[i])
+                document.querySelector(".day"+(i)+"desc").innerHTML = `${indexDays[i][0].weather[0].description.charAt(0).toUpperCase() + indexDays[i][0].weather[0].description.slice(1)}`;
             }
         } catch(error) {
             console.error("Ops, algo deu errado:", error);
@@ -102,13 +96,15 @@ document.querySelector('.search').addEventListener('submit', async (event) => {
 function showInfo(currentData) {
     showWarning('');
 
-    let date = new Date(currentData.dt * 1000);
-    
-    let dateSunrise = new Date(currentData.sunrise * 1000);
-    let dateSunset = new Date(currentData.sunset * 1000);
+    let myLocalDate = new Date();
+    let myLocalDateTimeZone = myLocalDate.getTimezoneOffset() * 60;
 
-    clock = {
-        timezone: currentData.timezone,
+    let date = new Date((currentData.dt + currentData.timezone + myLocalDateTimeZone) * 1000);
+
+    let dateSunrise = new Date((currentData.sunrise + currentData.timezone + myLocalDateTimeZone) * 1000);
+    let dateSunset = new Date((currentData.sunset + currentData.timezone + myLocalDateTimeZone) * 1000);
+
+    let clock = {
         hour: 'numeric',
         minute: 'numeric'
     };
@@ -123,16 +119,26 @@ function showInfo(currentData) {
     const hourSunrise = new Intl.DateTimeFormat('pt-br', clock).format(dateSunrise);
     const hourSunset = new Intl.DateTimeFormat('pt-br', clock).format(dateSunset);
 
+    if (parseInt(hour) >= 5 && parseInt(hour) < 9) {
+        document.querySelector('body').style.backgroundImage = 'linear-gradient(120deg, #f6d365 0%, #fda085 100%)';
+    } else if (parseInt(hour) >= 9 && parseInt(hour) < 16){
+        document.querySelector('body').style.backgroundImage = 'linear-gradient(to top, #48c6ef 0%, #6f86d6 100%)';
+    } else if (parseInt(hour) >= 16 && parseInt(hour) < 19) {
+        document.querySelector('body').style.backgroundImage = 'linear-gradient(to right, #fa709a 0%, #fee140 100%)';
+    } else if (parseInt(hour) >= 19 || parseInt(hour) < 5) {
+        document.querySelector('body').style.backgroundImage = 'linear-gradient(-20deg, #2b5876 0%, #4e4376 100%)';
+    }
+
     document.querySelector('.city').innerHTML = `${currentData.name}, ${currentData.country}`;
-    document.querySelector('.date').innerHTML = `${dateFormat}`;
+    document.querySelector('.date').innerHTML = dateFormat;
     document.querySelector('.icon').setAttribute('src', `https://openweathermap.org/img/wn/${currentData.todayIcon}@2x.png`);
     document.querySelector('.temp').innerHTML = `${currentData.todayTemp.toFixed(1)}ºC`;
     document.querySelector('.minMax strong').innerHTML = `${currentData.todayMaxTemp.toFixed(1)}º`;
     document.querySelector('.minMax span').innerHTML = `${currentData.todayMinTemp.toFixed(1)}º`;
     document.querySelector('.feels strong').innerHTML = `${currentData.todayFeels.toFixed(1)}º`;
-    document.querySelector('.clime').innerHTML = `${currentData.todayClime}`;
-    document.querySelector('.sunrise').innerHTML = `${hourSunrise}`;
-    document.querySelector('.sunset').innerHTML = `${hourSunset}`;
+    document.querySelector('.clime').innerHTML = currentData.todayClime.charAt(0).toUpperCase() + currentData.todayClime.slice(1);
+    document.querySelector('.sunrise').innerHTML = hourSunrise;
+    document.querySelector('.sunset').innerHTML = hourSunset;
     document.querySelector('.windSpeed').innerHTML = `${currentData.windSpeed} Km/h`;
     document.querySelector('.windPointer').style.transform = `rotate(${currentData.windDeg - 90}deg)`;
     document.querySelector('.humidity').innerHTML = `${currentData.humidity}%`;
@@ -169,6 +175,9 @@ function showNextDays () {
         setTimeout(() => {
             nextDaysElements[i].style.transition = 'all ease 1s';
             nextDaysElements[i].style.opacity = '1';
+            setTimeout(() => {
+                nextDaysElements[i].style.transition = '';
+            }, 1001)
         }, wait);
 
         wait += 250;
