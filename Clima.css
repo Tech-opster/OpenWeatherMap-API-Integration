@@ -51,6 +51,7 @@
 }
 
 body {
+    margin: 0px;
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -58,6 +59,14 @@ body {
     background-image: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%);
     font-family: Arial, Helvetica, sans-serif;
     color: rgb(40, 40, 40);
+}
+
+.backGround {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    z-index: -999;
+    opacity: 0;
 }
 
 .container {
@@ -123,6 +132,7 @@ body {
     justify-content: center;
     align-items: center;
     gap: 20px;
+    transition: all ease 0.1s;
 }
 
 .cloud, .cloudBef {

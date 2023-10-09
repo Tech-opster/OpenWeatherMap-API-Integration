@@ -1,8 +1,7 @@
 document.querySelector('.search').addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    let input = document.querySelector('.searchInput').value;
-    let currentData;
+    const input = document.querySelector('.searchInput').value;
 
     if(input !== '') {
         showWarning('Carregando...');
@@ -16,11 +15,39 @@ document.querySelector('.search').addEventListener('submit', async (event) => {
                 fetch(forecastURL)
             ]);
 
-            currentData = await currentURLResponse.json();
+            const currentData = await currentURLResponse.json();
             const forecastData = await forecastURLResponse.json();
 
+            if(currentData.cod === 200) {
+                showInfo({
+                    name: currentData.name,
+                    country: currentData.sys.country,
+                    dt: currentData.dt,
+                    timezone: currentData.timezone,
+                    todayIcon: currentData.weather[0].icon,
+                    todayTemp: currentData.main.temp,
+                    todayMaxTemp: currentData.main.temp_max,
+                    todayMinTemp: currentData.main.temp_min,
+                    todayFeels: currentData.main.feels_like,
+                    todayClime: currentData.weather[0].description,
+                    sunrise: currentData.sys.sunrise,
+                    sunset: currentData.sys.sunset,
+                    windSpeed: currentData.wind.speed,
+                    windDeg: currentData.wind.deg,
+                    humidity: currentData.main.humidity,
+                    pressure: currentData.main.pressure
+                });
+            } else {
+                clearInfo();
+                document.querySelector('body').style.backgroundImage = 'linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%)';
+                document.querySelector('.backGround').style.opacity = '0';
+                document.querySelector('.cloud').classList.add('cloudError');
+                document.querySelector('.lightning img').style.animationName = 'lightning';
+                showWarning('Ops, não foi possível localizar a cidade.');
+            }
+
             const dtList = forecastData.list;
-            let dtDate = [];
+            const dtDate = [];
 
             for (i = 0; i < dtList.length; i++) {
                 dtDate.push(dtList[i]);
@@ -47,7 +74,7 @@ document.querySelector('.search').addEventListener('submit', async (event) => {
             const indexDays = Object.values(forecastsByDay);
             console.log(indexDays)
 
-            for (i = 1; i < 5; i++) {
+            for (let i = 1; i < 5; i++) {
                 const date = new Date(indexDays[i][1].dt * 1000);
                 
                 const weekday = new Intl.DateTimeFormat('pt-br', {weekday: 'short'}).format(date);
@@ -60,35 +87,10 @@ document.querySelector('.search').addEventListener('submit', async (event) => {
                 document.querySelector(".day"+(i)+"max").innerHTML = `${Number(indexDays[i][0].main.temp_max).toFixed(1)}º`;
                 document.querySelector(".day"+(i)+"min").innerHTML = `${Number(indexDays[i][0].main.temp_min).toFixed(1)}º`;
                 document.querySelector(".day"+(i)+"desc").innerHTML = `${indexDays[i][0].weather[0].description.charAt(0).toUpperCase() + indexDays[i][0].weather[0].description.slice(1)}`;
+                console.log(indexDays[i])
             }
         } catch(error) {
             console.error("Ops, algo deu errado:", error);
-        }
-
-        if(currentData.cod === 200) {
-            showInfo({
-                name: currentData.name,
-                country: currentData.sys.country,
-                dt: currentData.dt,
-                timezone: currentData.timezone,
-                todayIcon: currentData.weather[0].icon,
-                todayTemp: currentData.main.temp,
-                todayMaxTemp: currentData.main.temp_max,
-                todayMinTemp: currentData.main.temp_min,
-                todayFeels: currentData.main.feels_like,
-                todayClime: currentData.weather[0].description,
-                sunrise: currentData.sys.sunrise,
-                sunset: currentData.sys.sunset,
-                windSpeed: currentData.wind.speed,
-                windDeg: currentData.wind.deg,
-                humidity: currentData.main.humidity,
-                pressure: currentData.main.pressure
-            });
-        } else {
-            clearInfo();
-            document.querySelector('.cloud').classList.add('cloudError');
-            document.querySelector('.lightning img').style.animationName = 'lightning';
-            showWarning('Ops, não foi possível localizar a cidade.');
         }
     }
 });
@@ -96,15 +98,15 @@ document.querySelector('.search').addEventListener('submit', async (event) => {
 function showInfo(currentData) {
     showWarning('');
 
-    let myLocalDate = new Date();
-    let myLocalDateTimeZone = myLocalDate.getTimezoneOffset() * 60;
+    const myLocalDate = new Date();
+    const myLocalDateTimeZone = myLocalDate.getTimezoneOffset() * 60;
 
-    let date = new Date((currentData.dt + currentData.timezone + myLocalDateTimeZone) * 1000);
+    const date = new Date((currentData.dt + currentData.timezone + myLocalDateTimeZone) * 1000);
 
-    let dateSunrise = new Date((currentData.sunrise + currentData.timezone + myLocalDateTimeZone) * 1000);
-    let dateSunset = new Date((currentData.sunset + currentData.timezone + myLocalDateTimeZone) * 1000);
+    const dateSunrise = new Date((currentData.sunrise + currentData.timezone + myLocalDateTimeZone) * 1000);
+    const dateSunset = new Date((currentData.sunset + currentData.timezone + myLocalDateTimeZone) * 1000);
 
-    let clock = {
+    const clock = {
         hour: 'numeric',
         minute: 'numeric'
     };
@@ -120,13 +122,53 @@ function showInfo(currentData) {
     const hourSunset = new Intl.DateTimeFormat('pt-br', clock).format(dateSunset);
 
     if (parseInt(hour) >= 5 && parseInt(hour) < 9) {
-        document.querySelector('body').style.backgroundImage = 'linear-gradient(120deg, #f6d365 0%, #fda085 100%)';
+        document.querySelector('.backGround').style.opacity = '0';
+        setTimeout(() => {
+            document.querySelector('.backGround').style.transition = 'all 1s ease';
+            document.querySelector('.backGround').style.backgroundImage = 'linear-gradient(120deg, #f6d365 0%, #fda085 100%)';
+            document.querySelector('.backGround').style.opacity = '1';
+            
+            setTimeout(() => {
+                document.querySelector('body').style.backgroundImage = 'linear-gradient(120deg, #f6d365 0%, #fda085 100%)';
+                document.querySelector('.backGround').style.transition = '';
+            }, 1001)
+        }, 250)
     } else if (parseInt(hour) >= 9 && parseInt(hour) < 16){
-        document.querySelector('body').style.backgroundImage = 'linear-gradient(to top, #48c6ef 0%, #6f86d6 100%)';
+        document.querySelector('.backGround').style.opacity = '0';
+        setTimeout(() => {
+            document.querySelector('.backGround').style.transition = 'all 1s ease';
+            document.querySelector('.backGround').style.backgroundImage = 'linear-gradient(to top, #48c6ef 0%, #6f86d6 100%)';
+            document.querySelector('.backGround').style.opacity = '1';
+            
+            setTimeout(() => {
+                document.querySelector('body').style.backgroundImage = 'linear-gradient(to top, #48c6ef 0%, #6f86d6 100%)';
+                document.querySelector('.backGround').style.transition = '';
+            }, 1001)
+        }, 250)
     } else if (parseInt(hour) >= 16 && parseInt(hour) < 19) {
-        document.querySelector('body').style.backgroundImage = 'linear-gradient(to right, #fa709a 0%, #fee140 100%)';
+        document.querySelector('.backGround').style.opacity = '0';
+        setTimeout(() => {
+            document.querySelector('.backGround').style.transition = 'all 1s ease';
+            document.querySelector('.backGround').style.backgroundImage = 'linear-gradient(to right, #fa709a 0%, #fee140 100%)';
+            document.querySelector('.backGround').style.opacity = '1';
+            
+            setTimeout(() => {
+                document.querySelector('body').style.backgroundImage = 'linear-gradient(to right, #fa709a 0%, #fee140 100%)';
+                document.querySelector('.backGround').style.transition = '';
+            }, 1001)
+        }, 250)
     } else if (parseInt(hour) >= 19 || parseInt(hour) < 5) {
-        document.querySelector('body').style.backgroundImage = 'linear-gradient(-20deg, #2b5876 0%, #4e4376 100%)';
+        document.querySelector('.backGround').style.opacity = '0';
+        setTimeout(() => {
+            document.querySelector('.backGround').style.transition = 'all 1s ease';
+            document.querySelector('.backGround').style.backgroundImage = 'linear-gradient(to bottom, #1e3c72 0%, #1e3c72 10%, #2a5298 100%)';
+            document.querySelector('.backGround').style.opacity = '1';
+            
+            setTimeout(() => {
+                document.querySelector('body').style.backgroundImage = 'linear-gradient(to bottom, #1e3c72 0%, #1e3c72 10%, #2a5298 100%)';
+                document.querySelector('.backGround').style.transition = '';
+            }, 1001)
+        }, 250)
     }
 
     document.querySelector('.city').innerHTML = `${currentData.name}, ${currentData.country}`;
@@ -145,6 +187,7 @@ function showInfo(currentData) {
     document.querySelector('.pressure').innerHTML = `${currentData.pressure} mb`;
     
     document.querySelector('.loading').style.display = 'none';
+    document.querySelector('.loading').style.opacity = '0';
     document.querySelector('.container').style.opacity = '0';
 
     document.querySelector('.searchResults').style.display = 'flex';
@@ -189,26 +232,21 @@ function showWarning(msg) {
 };
 
 function clearInfo() {
-    document.querySelector('.loading').style.opacity = '0';
-
+    document.querySelector('.container').style.transition = 'all ease 0.1s';
+    document.querySelector('.container').style.opacity = '0';
+    
     setTimeout (() => {
-        document.querySelector('.container').style.transition = 'all ease 0.1s';
-        document.querySelector('.container').style.opacity = '0';
-        
-        setTimeout (() => {
-            document.querySelector('.searchResults').style.display = 'none';
-            document.querySelector('.nextDaysTitle').style.display = 'none';
-            document.querySelector('.weatherNextDays').style.display = 'none';
+        document.querySelector('.searchResults').style.display = 'none';
+        document.querySelector('.nextDaysTitle').style.display = 'none';
+        document.querySelector('.weatherNextDays').style.display = 'none';
 
-            document.querySelector('.container').style.opacity = '1';
+        document.querySelector('.container').style.opacity = '1';
 
-            document.querySelector('.loading').style.display = 'flex';
-            document.querySelector('.loading').style.transition = 'all ease 0.1s';
-            document.querySelector('.loading').style.opacity = '1';
+        document.querySelector('.loading').style.display = 'flex';
+        document.querySelector('.loading').style.opacity = '1';
 
-            setTimeout(() => {
-                document.querySelector('.container').style.transition = '';
-            }, 101);
-        }, 100)
-    }, 1)
+        setTimeout(() => {
+            document.querySelector('.container').style.transition = '';
+        }, 101);
+    }, 100)
 };
