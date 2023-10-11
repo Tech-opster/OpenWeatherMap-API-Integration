@@ -319,7 +319,7 @@ body {
 }
 
 .days {
-    min-width: 70px;
+    min-width: 63px;
     width: 20%;
     min-height: 20%;
     display: flex;
