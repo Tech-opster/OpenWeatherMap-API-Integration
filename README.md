@@ -1,2 +1,2 @@
 # API-Request-Project
-Primeiro projeto fazendo requisição de uma API.
+Primeiro projeto fazendo uma requisição de API.
