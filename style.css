@@ -346,3 +346,9 @@ body {
     font-size: 14px;
     margin-top: 5px;
 }
+
+@media (min-width: 450px) {
+    .dayDate {
+        text-wrap: nowrap;
+    }
+}
